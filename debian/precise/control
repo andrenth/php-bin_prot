@@ -1,0 +1,16 @@
+Source: php5-binprot
+Section: php
+Priority: optional
+Maintainer: Andre Nathan <andre@digirati.com.br>
+Build-Depends: debhelper (>= 7),
+               cdbs,
+               php5-dev(>= 5.3.1)
+#               libbin_prot-dev
+Standards-Version: 3.8.4
+Homepage: http://pecl.php.net/package/binprot
+
+Package: php5-binprot
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${php5:Depends}
+Description: binprot extension module for PHP5
+  This extension binds libbin_prot.

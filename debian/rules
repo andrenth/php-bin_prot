@@ -1,0 +1,42 @@
+#!/usr/bin/make -f
+SHELL=/bin/sh -e
+
+PECL_NAME    := $(shell dpkg-parsechangelog -SSource | sed -e s/php-//)
+SOURCE_DIR   := $(shell ls -1d $(PECL_NAME)-*)
+INSTALL_ROOT := $(CURDIR)/debian/php-$(PECL_NAME)
+
+PHP_VERSIONS := $(shell /usr/sbin/phpquery -V)
+
+%:
+	dh $@ --with php --sourcedirectory=$(SOURCE_DIR)
+
+override_dh_auto_configure:
+	for v in $(PHP_VERSIONS); do \
+	  cp -a $(CURDIR)/$(SOURCE_DIR) $(CURDIR)/build-$$v; \
+	  cd $(CURDIR)/build-$$v; \
+	  phpize$$v; \
+	done
+	cd $(SOURCE_DIR) && phpize
+	for v in $(PHP_VERSIONS); do \
+	  dh_auto_configure --builddirectory=$(CURDIR)/build-$$v --sourcedirectory=$(SOURCE_DIR) -- --enable-$(PECL_NAME) --with-php-config=/usr/bin/php-config$$v; \
+	done
+
+override_dh_auto_build:
+	for v in $(PHP_VERSIONS); do \
+	  dh_auto_build --builddirectory=$(CURDIR)/build-$$v --sourcedirectory=$(SOURCE_DIR); \
+	done
+
+override_dh_auto_install:
+	for v in $(PHP_VERSIONS); do \
+	  dh_auto_install --builddirectory=$(CURDIR)/build-$$v --sourcedirectory=$(SOURCE_DIR) -- INSTALL_ROOT=$(INSTALL_ROOT); \
+	done
+
+override_dh_auto_clean:
+	for v in $(PHP_VERSIONS); do \
+	  dh_auto_clean --builddirectory=$(CURDIR)/build-$$v --sourcedirectory=$(SOURCE_DIR); \
+	  rm -rf $(CURDIR)/build-$$v; \
+	done
+	cd $(SOURCE_DIR) && phpize --clean
+
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info

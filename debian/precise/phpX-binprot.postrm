@@ -1,0 +1,14 @@
+#! /bin/sh
+set -e
+
+if test "$1" = "purge"; then
+    rm -f /etc/phpX/conf.d/bin_prot.ini
+fi
+
+if test "$1" = "remove"; then
+    sed s/extension/\;extension/g -i /etc/phpX/conf.d/bin_prot.ini
+fi
+
+#DEBHELPER#
+
+exit 0

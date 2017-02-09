@@ -1,0 +1,16 @@
+Source: php-binprot
+Section: php
+Priority: optional
+Maintainer: Andre Nathan <andre@digirati.com.br>
+Build-Depends: debhelper (>= 9~),
+               dh-php (>= 0.7~),
+               php-all-dev,
+               pkg-config
+Standards-Version: 3.9.8
+Homepage: http://pecl.php.net/package/bin_prot
+
+Package: php-binprot
+Architecture: any
+Depends: ucf, ${shlibs:Depends}, ${misc:Depends}, ${php:Depends}
+Description: bin_prot extension module for PHP
+ This extension binds libbin_prot.
