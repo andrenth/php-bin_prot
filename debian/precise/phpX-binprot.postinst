@@ -1,12 +1,12 @@
 #! /bin/sh -e
 set -e
 
-if test -e /etc/phpX/conf.d/bin_prot.ini; then
-    sed s/\;extension/extension/g -i /etc/phpX/conf.d/bin_prot.ini
+if test -e /etc/phpX/conf.d/binprot.ini; then
+    sed s/\;extension/extension/g -i /etc/phpX/conf.d/binprot.ini
 fi
 
 if test "$1" = "configure"; then
-    cp /usr/share/phpX-binprot/bin_prot.ini-dist /etc/phpX/conf.d/bin_prot.ini
+    cp /usr/share/phpX-binprot/binprot.ini-dist /etc/phpX/conf.d/binprot.ini
 fi
 
 #DEBHELPER#

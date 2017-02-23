@@ -1,1 +1,1 @@
-mod debian/bin_prot.ini
+mod debian/binprot.ini

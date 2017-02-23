@@ -27,12 +27,12 @@ configure_for_php%:
 define install_rule
 	$(MAKE) 
 	mkdir -p debian/php$1-binprot$(PHP_EX$1)
-	install -m 644 -o root -g root modules/bin_prot.so debian/php$1-binprot$(PHP_EX$1)/bin_prot.so
+	install -m 644 -o root -g root modules/binprot.so debian/php$1-binprot$(PHP_EX$1)/binprot.so
 	mkdir -p debian/php$1-binprot/usr/share/lintian/overrides
-	echo "php5-binprot: no-shlibs-control-file $(PHP_EX$1)/bin_prot.so" > debian/php$1-binprot/usr/share/lintian/overrides/php$1-binprot
+	echo "php5-binprot: no-shlibs-control-file $(PHP_EX$1)/binprot.so" > debian/php$1-binprot/usr/share/lintian/overrides/php$1-binprot
 	echo "php$1:Depends=phpapi-`php-config$1 --phpapi`, php$1-common" >> debian/php$1-binprot.substvars
 	mkdir -p debian/php$1-binprot/usr/share/php$1-binprot/
-	cp debian/bin_prot.ini  debian/php$1-binprot/usr/share/php$1-binprot/bin_prot.ini-dist
+	cp debian/binprot.ini  debian/php$1-binprot/usr/share/php$1-binprot/binprot.ini-dist
 endef
 
 install/php5-binprot:: configure_for_php5
