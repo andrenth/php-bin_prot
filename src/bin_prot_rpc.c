@@ -212,15 +212,26 @@ size_wrapper(void *v, void *data)
 }
 
 static zval *
-call_method(zend_class_entry *ce, const char *method)
+call_method(zval *obj, zend_class_entry *ce, const char *method)
 {
     zval *res = emalloc(sizeof(*res));
 #if PHP_VERSION_ID >= 70000
-    zend_call_method(NULL, ce, NULL, method, strlen(method), res, 0, NULL, NULL);
+    zend_call_method(obj, ce, NULL, method, strlen(method), res, 0, NULL, NULL);
 #else
-    zend_call_method(NULL, ce, NULL, method, strlen(method), &res, 0, NULL, NULL);
+    zend_call_method(&obj, ce, NULL, method, strlen(method), &res, 0, NULL, NULL);
 #endif
     return res;
+}
+
+static zend_class_entry *
+fetch_class(const char *name)
+{
+#if PHP_VERSION_ID >= 70000
+    zend_string *zname = zend_string_init(name, strlen(name), 1);
+    return zend_fetch_class(zname, ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+#else
+    return zend_fetch_class(name, strlen(name), ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
+#endif
 }
 
 PHP_FUNCTION(bin_rpc_create)
@@ -232,8 +243,8 @@ PHP_FUNCTION(bin_rpc_create)
 
     zend_class_entry *bin_query_ce;
     zend_class_entry *bin_response_ce;
-    zval *z_bin_query;
-    zval *z_bin_response;
+    zval *bin_query_obj;
+    zval *bin_response_obj;
 
     zval *query_read,    *query_write,    *query_size;
     zval *response_read, *response_write, *response_size;
@@ -249,27 +260,20 @@ PHP_FUNCTION(bin_rpc_create)
     struct bin_rpc *rpc;
     rpc_resource *rpc_res;
 
-    const char *type_class_name = "bin_prot\\type_class\\type_class";
-#if PHP_VERSION_ID >= 70000
-    zend_string *type_class =
-        zend_string_init(type_class_name, strlen(type_class_name), 1);
-    bin_query_ce = zend_fetch_class(type_class, ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
-    bin_response_ce = zend_fetch_class(type_class, ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
-#else
-    bin_query_ce = zend_fetch_class(type_class_name, strlen(type_class_name),
-                                    ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
-    bin_response_ce = zend_fetch_class(type_class_name, strlen(type_class_name),
-                                       ZEND_FETCH_CLASS_DEFAULT TSRMLS_CC);
-#endif
+    const char *type_class = "bin_prot\\type_class\\type_class";
+    bin_query_ce    = fetch_class(type_class);
+    bin_response_ce = fetch_class(type_class);
 
-    ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "slCC",
-            &tag, &tag_len, &version, &bin_query_ce, &bin_response_ce);
+    ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "slOO",
+            &tag, &tag_len, &version,
+            &bin_query_obj, bin_query_ce,
+            &bin_response_obj, bin_response_ce);
     if (ret == FAILURE)
         RETURN_FALSE;
 
-    query_read  = call_method(bin_query_ce, "read");
-    query_write = call_method(bin_query_ce, "write");
-    query_size  = call_method(bin_query_ce, "size");
+    query_read  = call_method(bin_query_obj, bin_query_ce, "read");
+    query_write = call_method(bin_query_obj, bin_query_ce, "write");
+    query_size  = call_method(bin_query_obj, bin_query_ce, "size");
 
     query_reader = emalloc(sizeof(*query_reader));
     query_reader->read = read_wrapper;
@@ -285,9 +289,9 @@ PHP_FUNCTION(bin_rpc_create)
     bin_query->reader = query_reader;
     bin_query->writer = query_writer;
 
-    response_read  = call_method(bin_response_ce, "read");
-    response_write = call_method(bin_response_ce, "write");
-    response_size  = call_method(bin_response_ce, "size");
+    response_read  = call_method(bin_response_obj, bin_response_ce, "read");
+    response_write = call_method(bin_response_obj, bin_response_ce, "write");
+    response_size  = call_method(bin_response_obj, bin_response_ce, "size");
 
     response_reader = emalloc(sizeof(*response_reader));
     response_reader->read = read_wrapper;
