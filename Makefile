@@ -34,6 +34,15 @@ deb-precise:
 	cd binprot-$(VERSION)/php-bin_prot && debuild -uc -us
 	mv binprot-$(VERSION)/php5-* ..
 
+examples:
+	mkdir -p _build
+	rm -rf _build/*
+	cp -a examples/*.ml _build
+	cd _build && \
+		ocamlfind ocamlopt -thread -o server -package core,async -linkpkg server.ml
+
+.PHONY: examples
+
 clean:
 	rm -rf _build
 	rm -rf build-*
