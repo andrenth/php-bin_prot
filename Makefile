@@ -1,6 +1,13 @@
 VERSION = 0.0.1
 
-all: deb
+all:
+	mkdir -p _build
+	rm -rf _build/*
+	cp -a src/* _build
+	cd _build && phpize && ./configure && make
+
+install:
+	cd _build && make install
 
 deb:
 	rm -rf binprot-$(VERSION)
@@ -28,6 +35,7 @@ deb-precise:
 	mv binprot-$(VERSION)/php5-* ..
 
 clean:
+	rm -rf _build
 	rm -rf build-*
 	rm -rf binprot-*
 	dh_clean
