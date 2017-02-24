@@ -82,6 +82,12 @@ ZEND_BEGIN_ARG_INFO_EX(ai_bin_read_array, 0, 0, 3)
     ZEND_ARG_INFO(0, pos)
 ZEND_END_ARG_INFO();
 
+ZEND_BEGIN_ARG_INFO_EX(ai_bin_read_list, 0, 0, 3)
+    ZEND_ARG_INFO(0, reader)
+    ZEND_ARG_INFO(0, buf)
+    ZEND_ARG_INFO(0, pos)
+ZEND_END_ARG_INFO();
+
 ZEND_BEGIN_ARG_INFO_EX(ai_bin_read_hashtbl, 0, 0, 4)
     ZEND_ARG_INFO(0, key_reader)
     ZEND_ARG_INFO(0, val_reader)
@@ -113,6 +119,13 @@ DEFINE_WRITER_AI(string)
 DEFINE_WRITER_AI(digest)
 
 ZEND_BEGIN_ARG_INFO_EX(ai_bin_write_array, 0, 0, 4)
+    ZEND_ARG_INFO(0, writer)
+    ZEND_ARG_INFO(0, buf)
+    ZEND_ARG_INFO(0, pos)
+    ZEND_ARG_INFO(0, v)
+ZEND_END_ARG_INFO();
+
+ZEND_BEGIN_ARG_INFO_EX(ai_bin_write_list, 0, 0, 4)
     ZEND_ARG_INFO(0, writer)
     ZEND_ARG_INFO(0, buf)
     ZEND_ARG_INFO(0, pos)
@@ -221,6 +234,11 @@ ZEND_BEGIN_ARG_INFO_EX(ai_bin_size_array, 0, 0, 2)
     ZEND_ARG_INFO(0, v)
 ZEND_END_ARG_INFO();
 
+ZEND_BEGIN_ARG_INFO_EX(ai_bin_size_list, 0, 0, 2)
+    ZEND_ARG_INFO(0, sizer)
+    ZEND_ARG_INFO(0, v)
+ZEND_END_ARG_INFO();
+
 ZEND_BEGIN_ARG_INFO_EX(ai_bin_size_hashtbl, 0, 0, 3)
     ZEND_ARG_INFO(0, key_sizer)
     ZEND_ARG_INFO(0, val_sizer)
@@ -275,6 +293,7 @@ const zend_function_entry binprot_functions[] = {
     ZEND_NS_FE(PHP_BIN_READ_NS, bin_read_triple,  ai_bin_read_triple)
 
     ZEND_NS_FE(PHP_BIN_READ_NS, bin_read_array,   ai_bin_read_array)
+    ZEND_NS_FE(PHP_BIN_READ_NS, bin_read_list,    ai_bin_read_list)
     ZEND_NS_FE(PHP_BIN_READ_NS, bin_read_hashtbl, ai_bin_read_hashtbl)
 
     ZEND_NS_FE(PHP_BIN_READ_NS, bin_read_digest,  ai_bin_read_digest)
@@ -308,6 +327,7 @@ const zend_function_entry binprot_functions[] = {
     ZEND_NS_FE(PHP_BIN_WRITE_NS, bin_write_triple, ai_bin_write_triple)
 
     ZEND_NS_FE(PHP_BIN_WRITE_NS, bin_write_array,   ai_bin_write_array)
+    ZEND_NS_FE(PHP_BIN_WRITE_NS, bin_write_list,    ai_bin_write_list)
     ZEND_NS_FE(PHP_BIN_WRITE_NS, bin_write_hashtbl, ai_bin_write_hashtbl)
 
     ZEND_NS_FE(PHP_BIN_WRITE_NS, bin_write_digest, ai_bin_write_digest)
@@ -342,6 +362,7 @@ const zend_function_entry binprot_functions[] = {
     ZEND_NS_FE(PHP_BIN_SIZE_NS, bin_size_triple,  ai_bin_size_triple)
 
     ZEND_NS_FE(PHP_BIN_SIZE_NS, bin_size_array,   ai_bin_size_array)
+    ZEND_NS_FE(PHP_BIN_SIZE_NS, bin_size_list,    ai_bin_size_list)
     ZEND_NS_FE(PHP_BIN_SIZE_NS, bin_size_hashtbl, ai_bin_size_hashtbl)
 
     ZEND_NS_FE(PHP_BIN_SIZE_NS, bin_size_digest,  ai_bin_size_digest)

@@ -435,6 +435,11 @@ PHP_FUNCTION(bin_read_array)
     add_index_long(return_value, 1, pos);
 }
 
+PHP_FUNCTION(bin_read_list)
+{
+    zif_bin_read_array(execute_data, return_value);
+}
+
 PHP_FUNCTION(bin_read_hashtbl)
 {
     int     ret;

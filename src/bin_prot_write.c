@@ -337,6 +337,11 @@ PHP_FUNCTION(bin_write_array)
     RETURN_LONG(pos);
 }
 
+PHP_FUNCTION(bin_write_list)
+{
+    zif_bin_write_array(execute_data, return_value);
+}
+
 PHP_FUNCTION(bin_write_hashtbl)
 {
     int            ret;

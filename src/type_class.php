@@ -259,6 +259,21 @@ class bin_array extends type_class {
     }
 }
 
+class bin_list extends type_class {
+    public function __construct($bin_a)
+    {
+        $this->_read = function($buf, $pos) use ($bin_a) {
+            bin_prot\read\bin_read_list($bin_a->read(), $buf, $pos);
+        };
+        $this->_write = function($buf, $pos, $v) use ($bin_a) {
+            bin_prot\write\bin_write_list($bin_a->write(), $buf, $pos, $v);
+        };
+        $this->_size = function($v) use ($bin_a) {
+            bin_prot\size\bin_size_list($bin_a->size(), $v);
+        };
+    }
+}
+
 class bin_hashtbl extends type_class {
     public function __construct($bin_k, $bin_v)
     {

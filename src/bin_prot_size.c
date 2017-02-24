@@ -286,6 +286,11 @@ PHP_FUNCTION(bin_size_array)
     RETURN_LONG(size);
 }
 
+PHP_FUNCTION(bin_size_list)
+{
+    zif_bin_size_array(execute_data, return_value);
+}
+
 PHP_FUNCTION(bin_size_hashtbl)
 {
     int            ret;
