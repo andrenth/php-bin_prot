@@ -355,7 +355,12 @@ PHP_FUNCTION(bin_write_array)
 
 PHP_FUNCTION(bin_write_list)
 {
+#if PHP_VERSION_ID >= 70000
     zif_bin_write_array(execute_data, return_value);
+#else
+    zif_bin_write_array(ht, return_value, return_value_ptr, this_ptr,
+                        return_value_used);
+#endif
 }
 
 PHP_FUNCTION(bin_write_hashtbl)
