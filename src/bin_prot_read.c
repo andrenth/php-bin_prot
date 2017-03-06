@@ -18,12 +18,16 @@ PHP_FUNCTION(bin_read_##name)                                    \
                                                                  \
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl", \
             &buf, &pos);                                         \
-    if (ret == FAILURE)                                          \
+    if (ret == FAILURE) {                                        \
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_" # name);    \
         RETURN_FALSE;                                            \
+    }                                                            \
                                                                  \
     ret = bin_read_##name(ptr_of_zval(buf), &pos, &res);         \
-    if (ret == -1)                                               \
+    if (ret == -1) {                                             \
+        bin_throw(BIN_ERROR_READ, "bin_read_" # name);           \
         RETURN_FALSE;                                            \
+    }                                                            \
                                                                  \
     array_init(return_value);                                    \
     add_index_##php_type(return_value, 0, res);                  \
@@ -60,12 +64,16 @@ PHP_FUNCTION(bin_read_##name)                                    \
                                                                  \
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl", \
             &buf, &pos);                                         \
-    if (ret == FAILURE)                                          \
+    if (ret == FAILURE) {                                        \
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_" # name);    \
         RETURN_FALSE;                                            \
+    }                                                            \
                                                                  \
     ret = bin_read_##name(ptr_of_zval(buf), &pos, &res);         \
-    if (ret == -1)                                               \
+    if (ret == -1) {                                             \
+        bin_throw(BIN_ERROR_READ, "bin_read_" # name);           \
         RETURN_FALSE;                                            \
+    }                                                            \
                                                                  \
     array_init(return_value);                                    \
     ARRAY_ADD_STRING(return_value, 0, res);                      \
@@ -83,12 +91,16 @@ PHP_FUNCTION(bin_read_unit)
     long    pos;
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl", &buf, &pos);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_unit");
         RETURN_FALSE;
+    }
 
     ret = bin_read_unit(ptr_of_zval(buf), &pos, NULL);
-    if (ret == -1)
+    if (ret == -1) {
+        bin_throw(BIN_ERROR_READ, "bin_read_unit");
         RETURN_FALSE;
+    }
 
 	RETURN_LONG(pos);
 }
@@ -101,12 +113,16 @@ PHP_FUNCTION(bin_read_char)
     char    res[2];
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl", &buf, &pos);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_char");
         RETURN_FALSE;
+    }
 
     ret = bin_read_char(ptr_of_zval(buf), &pos, &res[0]);
-    if (ret == -1)
+    if (ret == -1) {
+        bin_throw(BIN_ERROR_READ, "bin_read_char");
         RETURN_FALSE;
+    }
 
     res[1] = '\0';
     array_init(return_value);
@@ -182,8 +198,10 @@ PHP_FUNCTION(bin_read_option)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fzl",
             &fci, &fci_cache, &buf, &pos);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_option");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     fci.retval = &res;
@@ -195,8 +213,11 @@ PHP_FUNCTION(bin_read_option)
     args.buf = buf;
 
     ret = bin_read_option(reader_callback, ptr_of_zval(buf), &pos, &args);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_READ, "bin_read_option");
         RETURN_FALSE;
+    }
+
     if (ret == 0) { /* None */
         array_init(return_value);
         add_index_null(return_value, 0);
@@ -235,8 +256,10 @@ PHP_FUNCTION(bin_read_pair)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ffzl",
             &fci1, &fci_cache1, &fci2, &fci_cache2, &buf, &pos);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_pair");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     fci1.retval = &res1;
@@ -255,8 +278,10 @@ PHP_FUNCTION(bin_read_pair)
 
     ret = bin_read_pair(reader_callback, reader_callback,
                         ptr_of_zval(buf), &pos, &args1, &args2);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_READ, "bin_read_pair");
         RETURN_FALSE;
+    }
 
     array_init(return_value);
     add_index_null(return_value, 0);
@@ -310,9 +335,12 @@ PHP_FUNCTION(bin_read_triple)
     zend_fcall_info_cache fci_cache3;
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fffzl",
-            &fci1, &fci_cache1, &fci2, &fci_cache2, &fci3, &fci_cache3, &buf, &pos);
-    if (ret == FAILURE)
+            &fci1, &fci_cache1, &fci2, &fci_cache2, &fci3, &fci_cache3,
+            &buf, &pos);
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_triple");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     fci1.retval = &res1;
@@ -337,8 +365,10 @@ PHP_FUNCTION(bin_read_triple)
 
     ret = bin_read_triple(reader_callback, reader_callback, reader_callback,
                           ptr_of_zval(buf), &pos, &args1, &args2, &args3);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_READ, "bin_read_triple");
         RETURN_FALSE;
+    }
 
     array_init(return_value);
     add_index_null(return_value, 0);
@@ -393,12 +423,16 @@ PHP_FUNCTION(bin_read_array)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fzl",
             &fci, &fci_cache, &buf, &pos);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_array");
         RETURN_FALSE;
+    }
 
     ret = bin_read_nat0(ptr_of_zval(buf), &pos, &len);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_READ, "bin_read_array");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     fci.retval = &res;
@@ -469,12 +503,16 @@ PHP_FUNCTION(bin_read_hashtbl)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ffzl",
             &kfci, &kfci_cache, &vfci, &vfci_cache, &buf, &pos);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_read_hashtbl");
         RETURN_FALSE;
+    }
 
     ret = bin_read_nat0(ptr_of_zval(buf), &pos, &len);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_READ, "bin_read_hashtbl");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     kfci.retval = &kres;

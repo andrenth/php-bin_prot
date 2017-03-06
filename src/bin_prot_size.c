@@ -15,8 +15,10 @@ PHP_FUNCTION(bin_size_##name)                                              \
     long    v;                                                             \
                                                                            \
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, php_param, &v); \
-    if (ret == FAILURE)                                                    \
+    if (ret == FAILURE) {                                                  \
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_size_" # name);              \
         RETURN_FALSE;                                                      \
+    }                                                                      \
                                                                            \
     RETURN_LONG(bin_size_##name((void *)&v));                              \
 }
@@ -42,8 +44,10 @@ PHP_FUNCTION(bin_size_##name)                                        \
     zval   *z;                                                       \
                                                                      \
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &z); \
-    if (ret == FAILURE)                                              \
+    if (ret == FAILURE) {                                            \
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_size_" # name);        \
         RETURN_FALSE;                                                \
+    }                                                                \
                                                                      \
     RETURN_LONG(bin_size_##name(ptr_of_zval(z)));                    \
 }
@@ -63,8 +67,10 @@ PHP_FUNCTION(bin_size_char)
     char   *v;
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &z);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_size_char");
         RETURN_FALSE;
+    }
 
     v = (char *)ptr_of_zval(z);
     RETURN_LONG(bin_size_char(&v[0]));
@@ -120,8 +126,10 @@ PHP_FUNCTION(bin_size_option)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fz",
             &fci, &fci_cache, &v);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_size_option");
         RETURN_FALSE;
+    }
 
     if (Z_TYPE_P(v) == IS_NULL)
         RETURN_LONG(bin_size_option(sizer_callback, NULL));
@@ -259,8 +267,10 @@ PHP_FUNCTION(bin_size_array)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fh",
             &fci, &fci_cache, &v);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_size_array");
         RETURN_FALSE;
+    }
 
     len = zend_hash_num_elements(v);
 
@@ -318,8 +328,10 @@ PHP_FUNCTION(bin_size_hashtbl)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ffh",
             &kfci, &kfci_cache, &vfci, &vfci_cache, &arg);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_size_hashtbl");
         RETURN_FALSE;
+    }
 
     len = zend_hash_num_elements(arg);
 
@@ -371,6 +383,7 @@ PHP_FUNCTION(bin_size_hashtbl)
             ZVAL_LONG(&k, index);
             break;
         default:
+            bin_throw(BIN_ERROR_INVALID_ARG, "bin_size_hashtbl");
             RETURN_FALSE;
         }
         zend_hash_get_current_data_ex(arg, (void **)&val, &hpos);

@@ -18,8 +18,10 @@ PHP_FUNCTION(bin_write_##name)                                             \
                                                                            \
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl" php_param, \
             &buf, &pos, &v);                                               \
-    if (ret == FAILURE)                                                    \
+    if (ret == FAILURE) {                                                  \
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_" # name);             \
         RETURN_FALSE;                                                      \
+    }                                                                      \
                                                                            \
     RETURN_LONG(bin_write_##name(ptr_of_zval(buf), pos, v));               \
 }
@@ -49,8 +51,10 @@ PHP_FUNCTION(bin_write_##name)                                    \
                                                                   \
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zls", \
             &buf, &pos, &v, &v_len);                              \
-    if (ret == FAILURE)                                           \
+    if (ret == FAILURE) {                                         \
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_" # name);    \
         RETURN_FALSE;                                             \
+    }                                                             \
                                                                   \
     RETURN_LONG(bin_write_##name(ptr_of_zval(buf), pos, v));      \
 }
@@ -67,8 +71,10 @@ PHP_FUNCTION(bin_write_unit)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zlz",
             &buf, &pos, &unused);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_unit");
         RETURN_FALSE;
+    }
 
     RETURN_LONG(bin_write_unit(ptr_of_zval(buf), pos, NULL));
 }
@@ -87,8 +93,10 @@ PHP_FUNCTION(bin_write_char)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zls",
             &buf, &pos, &v, &v_len);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_char");
         RETURN_FALSE;
+    }
 
     RETURN_LONG(bin_write_char(ptr_of_zval(buf), pos, v[0]));
 }
@@ -150,8 +158,10 @@ PHP_FUNCTION(bin_write_option)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fzlz",
             &fci, &fci_cache, &buf, &pos, &v);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_option");
         RETURN_FALSE;
+    }
 
     if (Z_TYPE_P(v) == IS_NULL) {
         pos = bin_write_option(writer_callback, ptr_of_zval(buf), pos, NULL);
@@ -197,8 +207,10 @@ PHP_FUNCTION(bin_write_pair)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ffzlzz",
             &fci1, &fci_cache1, &fci2, &fci_cache2, &buf, &pos, &v1, &v2);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_pair");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     fci1.retval = &res1;
@@ -255,8 +267,10 @@ PHP_FUNCTION(bin_write_triple)
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fffzlzzz",
             &fci1, &fci_cache1, &fci2, &fci_cache2, &fci3, &fci_cache3,
             &buf, &pos, &v1, &v2, &v3);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_triple");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     fci1.retval = &res1;
@@ -308,8 +322,10 @@ PHP_FUNCTION(bin_write_array)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "fzlh",
             &fci, &fci_cache, &buf, &pos, &v);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_array");
         RETURN_FALSE;
+    }
 
     len = zend_hash_num_elements(v);
     pos = bin_write_nat0(ptr_of_zval(buf), pos, len);
@@ -369,8 +385,10 @@ PHP_FUNCTION(bin_write_hashtbl)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ffzlh",
             &kfci, &kfci_cache, &vfci, &vfci_cache, &buf, &pos, &arg);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_hashtbl");
         RETURN_FALSE;
+    }
 
     len = zend_hash_num_elements(arg);
     pos = bin_write_nat0(ptr_of_zval(buf), pos, len);
@@ -424,6 +442,7 @@ PHP_FUNCTION(bin_write_hashtbl)
             ZVAL_LONG(&k, index);
             break;
         default:
+            bin_throw(BIN_ERROR_INVALID_ARG, "bin_write_hashtbl");
             RETURN_FALSE;
         }
         zend_hash_get_current_data_ex(arg, (void **)&val, &hpos);

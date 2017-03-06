@@ -8,7 +8,7 @@
 
 #include <php.h>
 #include <ext/standard/info.h>
-#include <Zend/zend_exceptions.h>
+#include <ext/spl/spl_exceptions.h>
 
 #include <bin_prot/type_class.h>
 #include <bin_prot/rpc.h>
@@ -18,6 +18,12 @@
 
 int le_rpc;
 int le_conn;
+
+zend_class_entry *bin_exn_read;
+zend_class_entry *bin_exn_rpc;
+zend_class_entry *bin_exn_invalid_arg;
+zend_class_entry *bin_exn_sum_tag;
+zend_class_entry *bin_exn_variant;
 
 /*
  * Type classes
@@ -427,8 +433,66 @@ conn_resource_dtor(
     efree(c);
 }
 
+static zend_function_entry bin_exn_functions[] = {
+    PHP_FE_END
+};
+
+
+static void
+define_exn(zend_class_entry *cep, zend_class_entry **exn, const char *name)
+{
+    zend_class_entry ce = *cep;
+
+    INIT_CLASS_ENTRY(ce, name, bin_exn_functions);
+    printf(">>>>>>>>>>>>>>>>>> definint class %s\n", name);
+    *exn =
+#if PHP_VERSION_ID >= 70000
+        zend_register_internal_class_ex(&ce, spl_ce_InvalidArgumentException);
+#else
+        zend_register_internal_class_ex(&ce, spl_ce_InvalidArgumentException,
+                                        NULL TSRMLS_CC);
+#endif
+}
+
+#if PHP_VERSION_ID >= 70000
+#define REGISTER_EXN(name, ce_name, class_name)                                \
+static void                                                                    \
+register_exn_##name()                                                          \
+{                                                                              \
+    zend_class_entry ce;                                                       \
+                                                                               \
+    INIT_CLASS_ENTRY(ce, class_name, bin_exn_functions);                       \
+    ce_name =                                                                  \
+        zend_register_internal_class_ex(&ce, spl_ce_InvalidArgumentException); \
+}
+#else
+#define REGISTER_EXN(name, ce_name, class_name)                                \
+static void                                                                    \
+register_exn_##name()                                                          \
+{                                                                              \
+    zend_class_entry ce;                                                       \
+                                                                               \
+    INIT_CLASS_ENTRY(ce, class_name, bin_exn_functions);                       \
+    ce_name =                                                                  \
+        zend_register_internal_class_ex(&ce, spl_ce_InvalidArgumentException,  \
+                                        NULL TSRMLS_CC);                       \
+}
+#endif
+
+REGISTER_EXN(read,        bin_exn_read,        "bin_prot\\ReadError");
+REGISTER_EXN(rpc,         bin_exn_rpc,         "bin_prot\\RPCError");
+REGISTER_EXN(invalid_arg, bin_exn_invalid_arg, "bin_prot\\InvalidArg");
+REGISTER_EXN(sum_tag,     bin_exn_sum_tag,     "bin_prot\\SumTag");
+REGISTER_EXN(variant,     bin_exn_variant,     "bin_prot\\NoVariantMatch");
+
 PHP_MINIT_FUNCTION(binprot)
 {
+    register_exn_read();
+    register_exn_rpc();
+    register_exn_invalid_arg();
+    register_exn_sum_tag();
+    register_exn_variant();
+
     le_rpc = zend_register_list_destructors_ex(NULL, rpc_resource_dtor,
                                                PHP_BIN_RPC, module_number);
     le_conn = zend_register_list_destructors_ex(NULL, conn_resource_dtor,

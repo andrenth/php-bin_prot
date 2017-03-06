@@ -21,4 +21,20 @@ typedef struct _conn_resource {
 
 void *ptr_of_zval(zval *z);
 
+typedef enum {
+    BIN_ERROR_READ,
+    BIN_ERROR_RPC,
+    BIN_ERROR_INVALID_ARG,
+    BIN_ERROR_SUM_TAG,
+    BIN_ERROR_NO_VARIANT_MATCH,
+} bin_error;
+
+extern zend_class_entry *bin_exn_read;
+extern zend_class_entry *bin_exn_rpc;
+extern zend_class_entry *bin_exn_invalid_arg;
+extern zend_class_entry *bin_exn_sum_tag;
+extern zend_class_entry *bin_exn_variant;
+
+void bin_throw(bin_error err, const char *format, ...);
+
 #endif

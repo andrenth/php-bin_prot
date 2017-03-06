@@ -31,8 +31,10 @@ PHP_FUNCTION(bin_rpc_client)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs",
             &resource, &description, &len);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_rpc_client");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     php_sock = zend_fetch_resource(Z_RES_P(resource),
@@ -43,12 +45,16 @@ PHP_FUNCTION(bin_rpc_client)
                         php_sockets_le_socket_name, php_sockets_le_socket());
 #endif
 
-    if (php_sock == NULL)
+    if (php_sock == NULL) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_rpc_client");
         RETURN_FALSE;
+    }
 
     conn = bin_rpc_client(php_sock->bsd_socket, description);
-    if (conn == NULL)
+    if (conn == NULL) {
+        bin_throw(BIN_ERROR_RPC, "bin_rpc_client");
         RETURN_FALSE;
+    }
 
     conn_res = emalloc(sizeof(conn_resource));
     conn_res->conn = conn;
@@ -268,8 +274,10 @@ PHP_FUNCTION(bin_rpc_create)
             &tag, &tag_len, &version,
             &bin_query_obj, bin_query_ce,
             &bin_response_obj, bin_response_ce);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_rpc_create");
         RETURN_FALSE;
+    }
 
     query_read  = call_method(bin_query_obj, bin_query_ce, "read");
     query_write = call_method(bin_query_obj, bin_query_ce, "write");
@@ -340,8 +348,10 @@ PHP_FUNCTION(bin_rpc_dispatch)
 
     ret = zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rrz",
             &z_rpc_res, &z_conn_res, &data);
-    if (ret == FAILURE)
+    if (ret == FAILURE) {
+        bin_throw(BIN_ERROR_INVALID_ARG, "bin_rpc_dispatch");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     rpc_res = zend_fetch_resource(Z_RES_P(z_rpc_res), PHP_BIN_RPC, le_rpc);
@@ -356,8 +366,10 @@ PHP_FUNCTION(bin_rpc_dispatch)
     ret = bin_rpc_dispatch(rpc_res->rpc, conn_res->conn, data, res);
 #endif
 
-    if (ret == -1)
+    if (ret == -1) {
+        bin_throw(BIN_ERROR_RPC, "bin_rpc_dispatch");
         RETURN_FALSE;
+    }
 
 #if PHP_VERSION_ID >= 70000
     RETURN_ZVAL(&res, 0, 0);
