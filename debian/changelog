@@ -1,5 +1,5 @@
-php-binprot (0.0.1-0digirati1) stable; urgency=low
+php-binprot (0.1.0-0digirati1) stable; urgency=low
 
-  * Version 0.0.1.
+  * Build for 0.1.0.
 
- -- Andre Nathan <andre@digirati.com.br>  Fri, 03 Feb 2017 15:00:00 -0200
+ -- Andre Nathan <andre@digirati.com.br>  Fri, 06 Mar 2017 14:15:56 -0300

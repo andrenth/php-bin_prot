@@ -1,7 +1,7 @@
 #ifndef PHP_BINPROT_H
 #define PHP_BINPROT_H
 
-#define PHP_BINPROT_VERSION "0.0.1"
+#define PHP_BINPROT_VERSION "0.1.0"
 
 #define PHP_BIN_RPC  "bin_rpc"
 #define PHP_BIN_CONN "bin_rpc_connection"
