@@ -378,20 +378,20 @@ const zend_function_entry binprot_functions[] = {
     ZEND_NS_FE(PHP_BIN_RPC_NS, bin_rpc_create,   ai_bin_rpc_create)
     ZEND_NS_FE(PHP_BIN_RPC_NS, bin_rpc_dispatch, ai_bin_rpc_dispatch)
 
-	PHP_FE_END
+    PHP_FE_END
 };
 
 zend_module_entry binprot_module_entry = {
-	STANDARD_MODULE_HEADER,
-	"bin_prot",
-	binprot_functions,
-	PHP_MINIT(binprot),
-	PHP_MSHUTDOWN(binprot),
+    STANDARD_MODULE_HEADER,
+    "bin_prot",
+    binprot_functions,
+    PHP_MINIT(binprot),
+    PHP_MSHUTDOWN(binprot),
     NULL, /* PHP_RINIT(binprot) */
     NULL, /* PHP_RSHUTDOWN(binprot) */
-	NULL,
-	PHP_BINPROT_VERSION,
-	STANDARD_MODULE_PROPERTIES
+    NULL,
+    PHP_BINPROT_VERSION,
+    STANDARD_MODULE_PROPERTIES
 };
 
 #ifdef COMPILE_DL_BINPROT
@@ -498,19 +498,19 @@ PHP_MINIT_FUNCTION(binprot)
     le_conn = zend_register_list_destructors_ex(NULL, conn_resource_dtor,
                                                 PHP_BIN_CONN, module_number);
 
-	return SUCCESS;
+    return SUCCESS;
 }
 
 PHP_MSHUTDOWN_FUNCTION(binprot)
 {
-	return SUCCESS;
+    return SUCCESS;
 }
 
 PHP_MINFO_FUNCTION(binprot)
 {
-	php_info_print_table_start();
-	php_info_print_table_header(2, "bin_prot support", "enabled");
-	php_info_print_table_end();
+    php_info_print_table_start();
+    php_info_print_table_header(2, "bin_prot support", "enabled");
+    php_info_print_table_end();
 
     DISPLAY_INI_ENTRIES();
 }
